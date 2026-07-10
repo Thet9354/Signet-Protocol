@@ -1,0 +1,14 @@
+{
+  "name": "aegis-protocol",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Aegis Protocol — Autonomous AI-Agent & ERC-7579 Modular Account Abstraction Milestone Escrow",
+  "scripts": {
+    "test:contracts": "cd packages/contracts && forge test -vv",
+    "build:contracts": "cd packages/contracts && forge build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.34.4"
+}

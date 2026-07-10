@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # viem is needed by the EIP-712 differential test (ffi oracle)
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Check formatting
+        working-directory: packages/contracts
+        run: forge fmt --check
+
+      - name: Build
+        working-directory: packages/contracts
+        run: forge build --sizes
+
+      - name: Test
+        working-directory: packages/contracts
+        run: forge test -vv
+
+  relayer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Relayer consumes typed ABI bindings generated from the Foundry artifacts
+      - name: Build contracts and sync ABI
+        run: |
+          forge build --root packages/contracts
+          node packages/shared/scripts/sync-abi.mjs
+
+      - name: Typecheck
+        working-directory: packages/relayer
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: packages/relayer
+        run: pnpm test
+
+      # Full release flow against anvil: contract deploy → submit → pipeline
+      # signature → 2-of-3 approve → payout
+      - name: End-to-end tests (anvil)
+        working-directory: packages/relayer
+        run: pnpm test:e2e
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build contracts and sync ABI
+        run: |
+          forge build --root packages/contracts
+          node packages/shared/scripts/sync-abi.mjs
+
+      - name: Unit tests
+        working-directory: packages/web
+        run: pnpm test
+
+      - name: Build (includes typecheck)
+        working-directory: packages/web
+        run: pnpm build

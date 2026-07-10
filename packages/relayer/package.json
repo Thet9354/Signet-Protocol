@@ -1,0 +1,23 @@
+{
+  "name": "@aegis/relayer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --exclude 'test/e2e/**'",
+    "test:e2e": "vitest run test/e2e",
+    "test:all": "vitest run"
+  },
+  "dependencies": {
+    "@aegis/shared": "workspace:*",
+    "@anthropic-ai/sdk": "^0.110.0",
+    "viem": "^2.21.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

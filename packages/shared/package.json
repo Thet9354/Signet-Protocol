@@ -1,0 +1,16 @@
+{
+  "name": "@aegis/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/eip712.ts",
+    "./abi": "./src/abi/aegisEscrow.ts"
+  },
+  "scripts": {
+    "sync-abi": "node scripts/sync-abi.mjs"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  }
+}

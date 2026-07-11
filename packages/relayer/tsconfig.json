@@ -12,5 +12,5 @@
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "../shared/src/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "../shared/src/**/*.ts"]
 }

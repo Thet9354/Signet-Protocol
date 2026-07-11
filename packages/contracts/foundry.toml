@@ -24,3 +24,10 @@ depth = 64
 line_length = 120
 tab_width = 4
 bracket_spacing = false
+
+[rpc_endpoints]
+base_sepolia = "${BASE_SEPOLIA_RPC_URL}"
+
+[etherscan]
+# Base Sepolia verification via Etherscan v2 (one key works across explorers).
+base_sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 84532 }

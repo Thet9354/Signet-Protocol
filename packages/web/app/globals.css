@@ -1,9 +1,379 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: dark;
+/* ══════════════════════════════════════════════════════════════════════════
+   SIGNET DESIGN SYSTEM — the single source of truth.
+   Never hardcode a hex, radius, or shadow in a component; use these tokens.
+
+   Concept: a signet is a seal pressed into wax to authorize a document. The
+   palette is that world — warm graphite (unlit metal), parchment ink, and
+   burnished brass for anything that acts or demands attention. Aged-bronze
+   "verdigris" marks things that have settled; rust marks disputes.
+   No purple. No blue gradient. No fake glow.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@theme inline {
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-instrument), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 }
 
-body {
-  @apply bg-zinc-950 text-zinc-100 antialiased;
+@theme {
+  /* ─ surfaces (warm graphite, each step a real light change) ─ */
+  --color-canvas: #0c0d0b;
+  --color-card: #14150f;
+  --color-card2: #1c1d15;
+  --color-line: #2a2b22;
+  --color-line2: #3d3e31;
+
+  /* ─ ink (parchment, not pure white) ─ */
+  --color-ink: #ece7d6;
+  --color-ink2: #a8a493;
+  --color-ink3: #726f61;
+
+  /* ─ brass: the one accent. actions, focus, attention ─ */
+  --color-brass: #cfa14b;
+  --color-brass2: #e6bd6a;
+  --color-brassink: #14100a; /* text ON brass */
+
+  /* ─ status hues (bg/ink pairs are mixed at use-site via color-mix) ─ */
+  --color-moss: #83b795; /* approved · completed · paid — bronze patina */
+  --color-rust: #cf7350; /* disputed · rejected */
+  --color-slate: #94a0a6; /* refunded · cancelled · neutral pending */
+
+  /* ─ radii ─ */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.1rem;
+  --radius-xl: 1.6rem;
+
+  /* ─ elevation: hairline highlight on top edge (light on metal) + soft drop ─ */
+  --shadow-card: inset 0 1px 0 0 rgba(255, 250, 235, 0.035), 0 1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 12px 28px -18px rgba(0, 0, 0, 0.7);
+  --shadow-pop: inset 0 1px 0 0 rgba(255, 250, 235, 0.06), 0 2px 6px 0 rgba(0, 0, 0, 0.5),
+    0 20px 44px -20px rgba(0, 0, 0, 0.75);
+  --shadow-brass: 0 6px 20px -8px rgba(207, 161, 75, 0.45);
+}
+
+/* ══════════════════════ base ══════════════════════ */
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    /* faint film grain — kills the flat "plastic dark mode" look */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-brass) 35%, transparent);
+    color: var(--color-ink);
+  }
+
+  /* one focus treatment everywhere: a brass ring with breathing room */
+  :focus-visible {
+    outline: 2px solid var(--color-brass);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line2);
+    border: 3px solid var(--color-canvas);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink3);
+  }
+}
+
+/* ══════════════════════ type scale ══════════════════════
+   Use these classes for text — one definition, reused everywhere. */
+@layer components {
+  .t-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.4rem, 1.2rem + 4.2vw, 4.1rem);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+  }
+  .t-h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.3rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .t-h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .t-lede {
+    font-size: clamp(1rem, 0.95rem + 0.4vw, 1.15rem);
+    line-height: 1.6;
+    color: var(--color-ink2);
+  }
+  .t-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-ink3);
+  }
+  .t-mono {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    font-feature-settings: "tnum" 1, "zero" 1;
+    letter-spacing: -0.01em;
+  }
+  /* tabular figures for anything numeric/on-chain */
+  .nums {
+    font-feature-settings: "tnum" 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── section label with a brass hairline tick (intentional detail #1) ── */
+  .label-tick {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .label-tick::before {
+    content: "";
+    width: 1.4rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--color-brass), transparent);
+  }
+
+  /* ══════════════════════ buttons ══════════════════════ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 550;
+    font-size: 0.9rem;
+    line-height: 1;
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1.05rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease,
+      transform 0.12s ease,
+      box-shadow 0.18s ease;
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-primary {
+    background: var(--color-brass);
+    color: var(--color-brassink);
+    box-shadow: var(--shadow-brass);
+  }
+  .btn-primary:not(:disabled):hover {
+    background: var(--color-brass2);
+  }
+  .btn-secondary {
+    background: var(--color-card2);
+    color: var(--color-ink);
+    border: 1px solid var(--color-line2);
+  }
+  .btn-secondary:not(:disabled):hover {
+    background: var(--color-line);
+    border-color: var(--color-ink3);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink2);
+    border: 1px solid var(--color-line);
+  }
+  .btn-ghost:not(:disabled):hover {
+    color: var(--color-ink);
+    border-color: var(--color-line2);
+    background: color-mix(in oklab, var(--color-card) 60%, transparent);
+  }
+  .btn-success {
+    background: color-mix(in oklab, var(--color-moss) 22%, var(--color-card));
+    color: var(--color-moss);
+    border: 1px solid color-mix(in oklab, var(--color-moss) 40%, transparent);
+  }
+  .btn-success:not(:disabled):hover {
+    background: color-mix(in oklab, var(--color-moss) 32%, var(--color-card));
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--color-rust);
+    border: 1px solid color-mix(in oklab, var(--color-rust) 45%, transparent);
+  }
+  .btn-danger:not(:disabled):hover {
+    background: color-mix(in oklab, var(--color-rust) 15%, transparent);
+  }
+  .btn-sm {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ══════════════════════ surfaces ══════════════════════ */
+  .card {
+    background: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+  .card-inset {
+    background: color-mix(in oklab, var(--color-canvas) 55%, var(--color-card));
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+  }
+  /* rows that navigate somewhere lift on hover */
+  .card-link {
+    transition:
+      border-color 0.18s ease,
+      transform 0.18s ease,
+      box-shadow 0.18s ease;
+  }
+  .card-link:hover {
+    border-color: var(--color-line2);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-pop);
+  }
+
+  /* ══════════════════════ fields ══════════════════════ */
+  .field {
+    width: 100%;
+    background: var(--color-canvas);
+    border: 1px solid var(--color-line2);
+    border-radius: var(--radius-md);
+    padding: 0.62rem 0.8rem;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+  .field::placeholder {
+    color: var(--color-ink3);
+  }
+  .field:hover {
+    border-color: var(--color-ink3);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-brass);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brass) 22%, transparent);
+  }
+
+  /* ══════════════════════ badges ══════════════════════ */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    border: 1px solid transparent;
+  }
+  .badge-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 99px;
+    background: currentColor;
+  }
+}
+
+/* ══════════════════════ motion ══════════════════════ */
+@layer utilities {
+  /* reveal-on-scroll / on-mount: starts down + faded, settles up */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .pulse-dot {
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      var(--color-card) 30%,
+      var(--color-card2) 50%,
+      var(--color-card) 70%
+    );
+    background-size: 220% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+  @keyframes shimmer {
+    to {
+      background-position: -220% 0;
+    }
+  }
+
+  @keyframes seal-in {
+    from {
+      opacity: 0;
+      transform: rotate(-8deg) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }

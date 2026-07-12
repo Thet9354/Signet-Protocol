@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { Reveal } from "@/components/Reveal";
+import { Seal } from "@/components/Seal";
 import { StateBadge } from "@/components/StateBadge";
+import { Skeleton } from "@/components/ui";
 import { appConfig } from "@/lib/config";
 import {
   aegisEscrowAbi,
@@ -56,48 +59,86 @@ export default function EscrowsPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Escrows</h1>
-        <Link
-          href="/escrows/new"
-          className="rounded-lg bg-violet-600 px-3 py-1.5 text-sm hover:bg-violet-500"
-        >
+    <div className="space-y-10">
+      <div className="flex items-end justify-between">
+        <div className="space-y-3">
+          <p className="t-label label-tick">On-chain · Base Sepolia</p>
+          <h1 className="t-h1">Escrows</h1>
+        </div>
+        <Link href="/escrows/new" className="btn btn-primary">
           New escrow
         </Link>
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-900 bg-red-950/40 p-4 text-sm text-red-300">
-          Could not reach the chain: {error}
-        </p>
+        <div
+          className="card-inset p-5 text-sm"
+          style={{ borderColor: "color-mix(in oklab, var(--color-rust) 40%, transparent)" }}
+        >
+          <p className="mb-1 font-medium" style={{ color: "var(--color-rust)" }}>
+            Couldn&apos;t reach the chain
+          </p>
+          <p className="break-words text-ink2">{error}</p>
+        </div>
       )}
-      {!rows && !error && <p className="text-sm text-zinc-500">Loading on-chain state…</p>}
+
+      {/* loading skeletons */}
+      {!rows && !error && (
+        <div className="grid gap-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="card flex items-center justify-between p-5">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-3 w-52" />
+              </div>
+              <Skeleton className="h-6 w-24" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* empty state */}
       {rows?.length === 0 && (
-        <p className="rounded-lg border border-zinc-800 p-6 text-sm text-zinc-500">
-          No escrows yet on this chain.
-        </p>
+        <div className="card flex flex-col items-center gap-4 px-6 py-16 text-center">
+          <Seal size={40} />
+          <div className="space-y-1">
+            <p className="t-h2">No escrows yet</p>
+            <p className="max-w-sm text-sm text-ink2">
+              Create the first one — lock funding against a milestone schedule and let the 2-of-3
+              seal handle release.
+            </p>
+          </div>
+          <Link href="/escrows/new" className="btn btn-secondary btn-sm">
+            Create an escrow
+          </Link>
+        </div>
       )}
 
       <div className="grid gap-3">
-        {rows?.map((row) => (
-          <Link
-            key={row.id.toString()}
-            href={`/escrows/${row.id}`}
-            className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 hover:border-zinc-600"
-          >
-            <div className="space-y-1">
-              <p className="font-medium">Escrow #{row.id.toString()}</p>
-              <p className="text-xs text-zinc-500">
-                {shortAddress(row.funder)} → {shortAddress(row.contributor)} ·{" "}
-                {row.milestones} milestone{row.milestones === 1 ? "" : "s"}
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-zinc-300">{formatAmount(row.total, row.token)}</span>
-              <StateBadge label={ESCROW_STATE_LABELS[row.state] ?? "?"} />
-            </div>
-          </Link>
+        {rows?.map((row, i) => (
+          <Reveal key={row.id.toString()} delay={i * 60}>
+            <Link href={`/escrows/${row.id}`} className="card card-link flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] border border-line bg-canvas/50">
+                  <Seal size={22} />
+                </div>
+                <div className="space-y-1">
+                  <p className="font-display font-semibold">Escrow #{row.id.toString()}</p>
+                  <p className="text-xs text-ink2">
+                    <span className="t-mono">{shortAddress(row.funder)}</span>
+                    <span className="mx-1.5 text-ink3">→</span>
+                    <span className="t-mono">{shortAddress(row.contributor)}</span>
+                    <span className="mx-1.5 text-ink3">·</span>
+                    {row.milestones} milestone{row.milestones === 1 ? "" : "s"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-5">
+                <span className="t-mono nums text-ink">{formatAmount(row.total, row.token)}</span>
+                <StateBadge label={ESCROW_STATE_LABELS[row.state] ?? "?"} />
+              </div>
+            </Link>
+          </Reveal>
         ))}
       </div>
     </div>

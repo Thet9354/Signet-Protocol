@@ -33,48 +33,75 @@ export function SignatureTracker(props: Props) {
 
   const count = rows.filter((r) => has(r.addr)).length;
 
+  const executable = count >= 2;
+
   return (
-    <div className="space-y-3 rounded-lg border border-zinc-800 p-3">
+    <div className="card-inset space-y-4 p-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-medium text-zinc-400">
-          Release authorization — {count} of 3 collected{" "}
-          {count >= 2 && <span className="text-emerald-400">(executable)</span>}
-        </p>
-        <p className="font-mono text-[10px] text-zinc-600" title={props.digest}>
-          digest {props.digest.slice(0, 10)}…
+        <div className="flex items-center gap-2.5">
+          <span className="t-h2 text-sm">Release authorization</span>
+          <span
+            className="badge"
+            style={{
+              color: executable ? "var(--color-moss)" : "var(--color-brass)",
+              borderColor: `color-mix(in oklab, ${executable ? "var(--color-moss)" : "var(--color-brass)"} 35%, transparent)`,
+            }}
+          >
+            <span className={`badge-dot ${executable ? "" : "pulse-dot"}`} />
+            {count} of 3{executable ? " · executable" : ""}
+          </span>
+        </div>
+        <p className="t-mono text-[10px] text-ink3" title={props.digest}>
+          {props.digest.slice(0, 12)}…
         </p>
       </div>
 
-      <div className="space-y-2">
-        {rows.map((row) => (
-          <div key={row.label} className="flex items-center justify-between text-xs">
-            <span className="text-zinc-400">
-              {row.label} <span className="font-mono text-zinc-600">{shortAddress(row.addr)}</span>
-            </span>
-            {has(row.addr) ? (
-              <span className="text-emerald-400">✓ signed</span>
-            ) : row.action ? (
-              <button
-                onClick={row.action}
-                disabled={props.busy !== null}
-                className="rounded border border-violet-800 px-2 py-0.5 text-violet-300 hover:bg-violet-950 disabled:opacity-40"
-              >
-                {props.busy === "cosign" ? "…" : "Co-sign"}
-              </button>
-            ) : (
-              <span className="text-zinc-600">
-                {row.label === "AI oracle" ? "issued by the relayer on verification" : "awaiting"}
-              </span>
-            )}
-          </div>
+      {/* progress rail */}
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-1 flex-1 rounded-full transition-colors duration-300"
+            style={{ background: i < count ? "var(--color-brass)" : "var(--color-line2)" }}
+          />
         ))}
+      </div>
+
+      <div className="space-y-2">
+        {rows.map((row) => {
+          const signed = has(row.addr);
+          return (
+            <div
+              key={row.label}
+              className="flex items-center justify-between rounded-[var(--radius-md)] border border-line bg-canvas/40 px-3.5 py-2.5"
+            >
+              <span className="flex items-center gap-2 text-sm text-ink2">
+                {row.label}
+                <span className="t-mono text-ink3">{shortAddress(row.addr)}</span>
+              </span>
+              {signed ? (
+                <span className="flex items-center gap-1.5 text-sm" style={{ color: "var(--color-moss)" }}>
+                  <CheckIcon /> sealed
+                </span>
+              ) : row.action ? (
+                <button onClick={row.action} disabled={props.busy !== null} className="btn btn-secondary btn-sm">
+                  {props.busy === "cosign" ? "…" : "Co-sign"}
+                </button>
+              ) : (
+                <span className="text-xs text-ink3">
+                  {row.label === "AI oracle" ? "issued by the relayer" : "awaiting"}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {props.onAgentPaste && !has(props.agentSigner) && (
         <div className="flex gap-2">
           <input
-            className="w-full rounded border border-zinc-700 bg-zinc-900 px-2 py-1 font-mono text-[10px] outline-none focus:border-violet-500"
-            placeholder="Paste oracle signature (0x…, 65 bytes) from the relayer record"
+            className="field t-mono text-[11px]"
+            placeholder="Paste oracle signature (0x…) from the relayer record"
             value={agentSig}
             onChange={(e) => setAgentSig(e.target.value)}
           />
@@ -83,7 +110,7 @@ export function SignatureTracker(props: Props) {
               props.onAgentPaste?.(agentSig);
               setAgentSig("");
             }}
-            className="rounded border border-zinc-700 px-2 text-xs hover:bg-zinc-800"
+            className="btn btn-secondary btn-sm"
           >
             Add
           </button>
@@ -91,14 +118,18 @@ export function SignatureTracker(props: Props) {
       )}
 
       {props.onExecute && (
-        <button
-          onClick={props.onExecute}
-          disabled={props.busy !== null}
-          className="w-full rounded-lg bg-emerald-700 py-1.5 text-xs font-medium hover:bg-emerald-600 disabled:opacity-40"
-        >
-          {props.busy === "execute" ? "Executing…" : "Execute release (permissionless)"}
+        <button onClick={props.onExecute} disabled={props.busy !== null} className="btn btn-success w-full">
+          {props.busy === "execute" ? "Executing…" : "Execute release · permissionless"}
         </button>
       )}
     </div>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

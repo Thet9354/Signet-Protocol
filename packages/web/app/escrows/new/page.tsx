@@ -114,81 +114,82 @@ export default function NewEscrowPage() {
     }
   }
 
-  const inputCls =
-    "w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm outline-none focus:border-violet-500";
-
   return (
-    <div className="max-w-2xl space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Create escrow</h1>
-        <p className="mt-1 text-sm text-zinc-500">
-          Funder flow — uses your connected wallet. Funds lock on creation; each milestone
-          releases on 2-of-3 approval.
+    <div className="mx-auto max-w-2xl space-y-10">
+      <div className="space-y-3">
+        <p className="t-label label-tick">Funder flow</p>
+        <h1 className="t-h1">Create escrow</h1>
+        <p className="t-lede text-base">
+          Uses your connected wallet. Funds lock on creation; each milestone releases only on a
+          2-of-3 seal.
         </p>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-400">Parties</h2>
-        <input className={inputCls} placeholder="Contributor smart-account address (0x…)" value={contributor} onChange={(e) => setContributor(e.target.value)} />
-        <input className={inputCls} placeholder="AI agent signer address (0x…)" value={agentSigner} onChange={(e) => setAgentSigner(e.target.value)} />
-        <input className={inputCls} placeholder="Funding token address — leave empty for ETH" value={token} onChange={(e) => setToken(e.target.value)} />
+      <section className="card space-y-3 p-6">
+        <p className="t-label">Parties</p>
+        <input className="field t-mono" placeholder="Contributor smart-account address (0x…)" value={contributor} onChange={(e) => setContributor(e.target.value)} />
+        <input className="field t-mono" placeholder="AI agent signer address (0x…)" value={agentSigner} onChange={(e) => setAgentSigner(e.target.value)} />
+        <input className="field t-mono" placeholder="Funding token address — leave empty for ETH" value={token} onChange={(e) => setToken(e.target.value)} />
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-400">Repository commitment</h2>
+      <section className="card space-y-3 p-6">
+        <p className="t-label">Repository commitment</p>
         <div className="grid grid-cols-3 gap-3">
-          <input className={`${inputCls} col-span-2`} placeholder="owner/repo" value={repo} onChange={(e) => setRepo(e.target.value)} />
-          <input className={inputCls} placeholder="branch" value={branch} onChange={(e) => setBranch(e.target.value)} />
+          <input className="field col-span-2" placeholder="owner/repo" value={repo} onChange={(e) => setRepo(e.target.value)} />
+          <input className="field" placeholder="branch" value={branch} onChange={(e) => setBranch(e.target.value)} />
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <label className="col-span-2 self-center text-xs text-zinc-500">
-            Dispute grace window (days after each deadline before funds become reclaimable)
+        <div className="grid grid-cols-3 items-center gap-3">
+          <label className="col-span-2 text-xs text-ink2">
+            Dispute grace window — days after each deadline before funds become reclaimable
           </label>
-          <input className={inputCls} type="number" min="0" value={disputeDays} onChange={(e) => setDisputeDays(e.target.value)} />
+          <input className="field nums" type="number" min="0" value={disputeDays} onChange={(e) => setDisputeDays(e.target.value)} />
         </div>
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-400">Milestones</h2>
+        <p className="t-label label-tick">Milestones</p>
         {milestones.map((m, i) => (
-          <div key={i} className="space-y-3 rounded-xl border border-zinc-800 p-4">
+          <div key={i} className="card space-y-3 p-5">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Milestone {i}</p>
+              <p className="font-display font-semibold">Milestone {i}</p>
               {milestones.length > 1 && (
-                <button className="text-xs text-red-400 hover:text-red-300" onClick={() => setMilestones((ms) => ms.filter((_, j) => j !== i))}>
-                  remove
+                <button className="text-xs transition-colors hover:opacity-80" style={{ color: "var(--color-rust)" }} onClick={() => setMilestones((ms) => ms.filter((_, j) => j !== i))}>
+                  Remove
                 </button>
               )}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <input className={inputCls} placeholder={`Amount (${isNative ? "ETH" : "USDC"})`} value={m.amount} onChange={(e) => updateMilestone(i, { amount: e.target.value })} />
-              <input className={inputCls} type="date" value={m.deadline} onChange={(e) => updateMilestone(i, { deadline: e.target.value })} />
+              <input className="field nums" placeholder={`Amount (${isNative ? "ETH" : "USDC"})`} value={m.amount} onChange={(e) => updateMilestone(i, { amount: e.target.value })} />
+              <input className="field" type="date" value={m.deadline} onChange={(e) => updateMilestone(i, { deadline: e.target.value })} />
             </div>
             <textarea
-              className={`${inputCls} min-h-24 font-mono text-xs`}
+              className="field t-mono min-h-24 text-xs"
               placeholder="Acceptance rubric (markdown) — its keccak256 hash is committed on-chain and the AI judges against exactly this document"
               value={m.rubric}
               onChange={(e) => updateMilestone(i, { rubric: e.target.value })}
             />
             {m.rubric && (
-              <p className="break-all text-[10px] text-zinc-600">
-                specHash: {keccak256(toBytes(m.rubric))}
+              <p className="break-all text-[10px] text-ink3">
+                <span className="text-brass">specHash</span> {keccak256(toBytes(m.rubric))}
               </p>
             )}
           </div>
         ))}
-        <button className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm hover:bg-zinc-900" onClick={() => setMilestones((ms) => [...ms, { ...EMPTY }])}>
+        <button className="btn btn-ghost btn-sm" onClick={() => setMilestones((ms) => [...ms, { ...EMPTY }])}>
           + Add milestone
         </button>
       </section>
 
-      {error && <p className="rounded-lg border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">{error}</p>}
+      {error && (
+        <p
+          className="card-inset break-words p-4 text-sm"
+          style={{ color: "var(--color-rust)", borderColor: "color-mix(in oklab, var(--color-rust) 40%, transparent)" }}
+        >
+          {error}
+        </p>
+      )}
 
-      <button
-        onClick={() => void submit()}
-        disabled={!isConnected || busy}
-        className="w-full rounded-lg bg-violet-600 py-2.5 text-sm font-medium hover:bg-violet-500 disabled:opacity-40"
-      >
+      <button onClick={() => void submit()} disabled={!isConnected || busy} className="btn btn-primary w-full">
         {busy ? (status ?? "Working…") : isConnected ? "Create & fund escrow" : "Connect a wallet first"}
       </button>
     </div>

@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { MilestoneCard } from "@/components/MilestoneCard";
 import { StateBadge } from "@/components/StateBadge";
+import { DataPoint, Skeleton } from "@/components/ui";
 import { appConfig } from "@/lib/config";
 import {
   aegisEscrowAbi,
@@ -58,46 +60,59 @@ export default function EscrowDetailPage() {
 
   if (error) {
     return (
-      <p className="rounded-lg border border-red-900 bg-red-950/40 p-4 text-sm text-red-300">
-        Could not load escrow: {error}
-      </p>
+      <div
+        className="card-inset p-5 text-sm"
+        style={{ borderColor: "color-mix(in oklab, var(--color-rust) 40%, transparent)" }}
+      >
+        <p className="mb-1 font-medium" style={{ color: "var(--color-rust)" }}>
+          Couldn&apos;t load escrow #{escrowId.toString()}
+        </p>
+        <p className="break-words text-ink2">{error}</p>
+      </div>
     );
   }
-  if (!escrow) return <p className="text-sm text-zinc-500">Loading on-chain state…</p>;
+  if (!escrow) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    );
+  }
 
   const total = escrow.milestones.reduce((acc, m) => acc + m.amount, 0n);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold">Escrow #{escrowId.toString()}</h1>
-          <p className="text-sm text-zinc-500">
-            {formatAmount(total, escrow.token)} across {escrow.milestones.length} milestone
-            {escrow.milestones.length === 1 ? "" : "s"}
-          </p>
-        </div>
-        <StateBadge label={ESCROW_STATE_LABELS[escrow.state] ?? "?"} />
-      </div>
-
-      <div className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 text-sm md:grid-cols-3">
-        {(
-          [
-            ["Funder", escrow.funder],
-            ["Contributor (smart account)", escrow.contributor],
-            ["AI oracle signer", escrow.agentSigner],
-          ] as const
-        ).map(([label, addr]) => (
-          <div key={label}>
-            <p className="text-xs uppercase tracking-wider text-zinc-500">{label}</p>
-            <p className="mt-1 font-mono text-xs" title={addr}>
-              {shortAddress(addr)}
+    <div className="space-y-10">
+      <div>
+        <Link href="/escrows" className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink2 transition-colors hover:text-ink">
+          ← All escrows
+        </Link>
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="t-h1">Escrow #{escrowId.toString()}</h1>
+            <p className="t-lede text-base">
+              <span className="t-mono nums text-ink">{formatAmount(total, escrow.token)}</span> across{" "}
+              {escrow.milestones.length} milestone{escrow.milestones.length === 1 ? "" : "s"}
             </p>
           </div>
-        ))}
+          <StateBadge label={ESCROW_STATE_LABELS[escrow.state] ?? "?"} />
+        </div>
+      </div>
+
+      <div className="card grid gap-6 p-6 sm:grid-cols-3">
+        <DataPoint label="Funder" value={shortAddress(escrow.funder)} title={escrow.funder} />
+        <DataPoint
+          label="Contributor · smart account"
+          value={shortAddress(escrow.contributor)}
+          title={escrow.contributor}
+        />
+        <DataPoint label="AI oracle signer" value={shortAddress(escrow.agentSigner)} title={escrow.agentSigner} />
       </div>
 
       <div className="space-y-4">
+        <p className="t-label label-tick">Milestones</p>
         {escrow.milestones.map((milestone, i) => (
           <MilestoneCard
             key={i}

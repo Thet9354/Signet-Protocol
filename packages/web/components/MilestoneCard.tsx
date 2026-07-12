@@ -205,18 +205,17 @@ export function MilestoneCard(props: Props) {
     milestone.state !== REFUNDED &&
     Date.now() > reclaimableAt;
 
-  const inputCls =
-    "w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-xs font-mono outline-none focus:border-violet-500";
-
   return (
-    <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-medium">Milestone {milestoneId.toString()}</p>
-          <p className="text-xs text-zinc-500">
-            {formatAmount(milestone.amount, props.token)} · deadline{" "}
-            {new Date(milestone.deadline * 1000).toLocaleDateString()} · review round{" "}
-            {milestone.reviewNonce}
+    <div className="card space-y-4 p-6">
+      <div className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <p className="font-display font-semibold">Milestone {milestoneId.toString()}</p>
+          <p className="text-xs text-ink2">
+            <span className="t-mono nums text-ink">{formatAmount(milestone.amount, props.token)}</span>
+            <span className="mx-1.5 text-ink3">·</span>
+            deadline {new Date(milestone.deadline * 1000).toLocaleDateString()}
+            <span className="mx-1.5 text-ink3">·</span>
+            review round {milestone.reviewNonce}
           </p>
         </div>
         <StateBadge label={stateLabel} />
@@ -224,22 +223,26 @@ export function MilestoneCard(props: Props) {
 
       {milestone.commitHash !==
         "0x0000000000000000000000000000000000000000000000000000000000000000" && (
-        <p className="break-all text-[11px] text-zinc-500">
-          commit under review: <span className="font-mono">{milestone.commitHash}</span>
+        <p className="break-all text-[11px] text-ink3">
+          commit under review: <span className="t-mono text-ink2">{milestone.commitHash}</span>
         </p>
       )}
 
       {canSubmit && (
-        <div className="space-y-2 rounded-lg border border-zinc-800 p-3">
-          <p className="text-xs font-medium text-zinc-400">
-            Submit work{" "}
-            {isContributorPasskey && appConfig.pimlicoApiKey
-              ? "(gasless — sponsored UserOperation)"
-              : "(wallet transaction)"}
+        <div className="card-inset space-y-2.5 p-4">
+          <p className="text-xs font-medium text-ink2">
+            Submit work
+            {isContributorPasskey && appConfig.pimlicoApiKey ? (
+              <span className="ml-1.5 badge" style={{ color: "var(--color-moss)", borderColor: "color-mix(in oklab, var(--color-moss) 35%, transparent)" }}>
+                gasless
+              </span>
+            ) : (
+              <span className="ml-1 text-ink3"> · wallet transaction</span>
+            )}
           </p>
-          <input className={inputCls} placeholder="Commit hash (0x… 32 bytes)" value={commitInput} onChange={(e) => setCommitInput(e.target.value)} />
-          <input className={inputCls} placeholder="Artifact URI (ipfs://…)" value={artifactInput} onChange={(e) => setArtifactInput(e.target.value)} />
-          <button onClick={submit} disabled={busy !== null} className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium hover:bg-violet-500 disabled:opacity-40">
+          <input className="field t-mono" placeholder="Commit hash (0x… 32 bytes)" value={commitInput} onChange={(e) => setCommitInput(e.target.value)} />
+          <input className="field t-mono" placeholder="Artifact URI (ipfs://…)" value={artifactInput} onChange={(e) => setArtifactInput(e.target.value)} />
+          <button onClick={submit} disabled={busy !== null} className="btn btn-primary btn-sm">
             {busy === "submit" ? "Submitting…" : "Submit milestone"}
           </button>
         </div>
@@ -260,20 +263,34 @@ export function MilestoneCard(props: Props) {
         />
       )}
 
-      <div className="flex gap-2">
-        {milestone.state === IN_REVIEW && (isFunder || isContributorEoa) && (
-          <button onClick={raiseDispute} disabled={busy !== null} className="rounded-lg border border-red-900 px-3 py-1.5 text-xs text-red-300 hover:bg-red-950 disabled:opacity-40">
-            Raise dispute
-          </button>
-        )}
-        {canReclaim && (
-          <button onClick={reclaim} disabled={busy !== null} className="rounded-lg border border-sky-900 px-3 py-1.5 text-xs text-sky-300 hover:bg-sky-950 disabled:opacity-40">
-            Reclaim expired funds
-          </button>
-        )}
-      </div>
+      {((milestone.state === IN_REVIEW && (isFunder || isContributorEoa)) || canReclaim) && (
+        <div className="flex gap-2">
+          {milestone.state === IN_REVIEW && (isFunder || isContributorEoa) && (
+            <button onClick={raiseDispute} disabled={busy !== null} className="btn btn-danger btn-sm">
+              Raise dispute
+            </button>
+          )}
+          {canReclaim && (
+            <button
+              onClick={reclaim}
+              disabled={busy !== null}
+              className="btn btn-sm"
+              style={{ color: "var(--color-slate)", border: "1px solid color-mix(in oklab, var(--color-slate) 40%, transparent)" }}
+            >
+              Reclaim expired funds
+            </button>
+          )}
+        </div>
+      )}
 
-      {error && <p className="break-all rounded-lg border border-red-900 bg-red-950/40 p-2 text-xs text-red-300">{error}</p>}
+      {error && (
+        <p
+          className="card-inset break-all p-3 text-xs"
+          style={{ color: "var(--color-rust)", borderColor: "color-mix(in oklab, var(--color-rust) 40%, transparent)" }}
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 }

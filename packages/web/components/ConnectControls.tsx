@@ -13,32 +13,30 @@ export function ConnectControls() {
   const passkey = usePasskeyAccount();
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
       {passkey.address ? (
-        <span className="rounded-full bg-violet-950 px-3 py-1 text-xs text-violet-300">
-          passkey {shortAddress(passkey.address)}
+        <span
+          className="badge"
+          title={passkey.address}
+          style={{ color: "var(--color-brass)", borderColor: "color-mix(in oklab, var(--color-brass) 35%, transparent)" }}
+        >
+          <span className="badge-dot" />
+          <span className="t-mono">{shortAddress(passkey.address)}</span>
         </span>
       ) : (
-        <button
-          onClick={() => void passkey.register()}
-          disabled={passkey.busy}
-          className="rounded-full border border-violet-800 px-3 py-1 text-xs text-violet-300 hover:bg-violet-950 disabled:opacity-50"
-        >
+        <button onClick={() => void passkey.register()} disabled={passkey.busy} className="btn btn-ghost btn-sm">
           {passkey.busy ? "…" : "Passkey sign-in"}
         </button>
       )}
       {isConnected && address ? (
-        <button
-          onClick={() => disconnect()}
-          className="rounded-full bg-zinc-800 px-3 py-1 text-xs hover:bg-zinc-700"
-          title="Disconnect"
-        >
-          {shortAddress(address)}
+        <button onClick={() => disconnect()} className="btn btn-secondary btn-sm" title="Disconnect">
+          <span className="badge-dot" style={{ background: "var(--color-moss)" }} />
+          <span className="t-mono">{shortAddress(address)}</span>
         </button>
       ) : (
         <button
           onClick={() => connectors[0] && connect({ connector: connectors[0] })}
-          className="rounded-full border border-zinc-700 px-3 py-1 text-xs hover:bg-zinc-800"
+          className="btn btn-secondary btn-sm"
         >
           Connect wallet
         </button>

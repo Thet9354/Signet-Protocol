@@ -15,6 +15,23 @@ schedule. Releases require **2-of-3 EIP-712 authorization** among:
 > custodies no funds, and has no say in dispute resolution — the two human parties
 > acting together always override it.
 
+## Live on Base Sepolia
+
+Both contracts are deployed and **source-verified on BaseScan**, and the full
+2-of-3 release flow has been executed end-to-end on-chain:
+
+| What | Address / transaction |
+|---|---|
+| **AegisEscrow** (verified) | [`0xd3d8AF1b…c5f67`](https://sepolia.basescan.org/address/0xd3d8af1b7eb03a812052cda7b52a289ee38c5f67#code) |
+| **TestUSDC** (verified) | [`0x7Ce5E460…017AC`](https://sepolia.basescan.org/address/0x7ce5e460fdabc3eb309ab5348afdf41deb3017ac#code) |
+| **End-to-end release** — funder + AI oracle 2-of-3, 1,000 USDC paid to the contributor | [tx `0x46dd7d0d…0ca6`](https://sepolia.basescan.org/tx/0x46dd7d0d2466a396d29394bd0f0bbcaf519c6c849d08233b3f4d2c6b2f1a0ca6) |
+
+The release transaction shows the full lifecycle settling on a public network:
+funder creates & funds an escrow → contributor submits a milestone → the relayer
+pipeline verifies it and produces the AI oracle's signature → the funder co-signs
+→ `approveMilestone` pays out. Reproduce it with
+[`packages/relayer/scripts/rehearseTestnet.ts`](packages/relayer/scripts/rehearseTestnet.ts).
+
 ## Security properties (enforced by the contract, verified by the test suite)
 
 - **Replay-proof authorizations** — every signature is bound to

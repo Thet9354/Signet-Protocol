@@ -31,16 +31,23 @@ export function publicClient(): PublicClient {
 
 /** Escrow ids come from EscrowCreated logs — the contract keeps no public counter. */
 export async function fetchEscrowIds(client: PublicClient, escrow: Address): Promise<bigint[]> {
-  const logs = await client.getContractEvents({
-    address: escrow,
-    abi: aegisEscrowAbi,
-    eventName: "EscrowCreated",
-    fromBlock: 0n,
-  });
-  return logs
-    .map((log) => log.args.escrowId)
-    .filter((id): id is bigint => id !== undefined)
-    .sort((a, b) => (a < b ? -1 : 1));
+  // Public RPCs (e.g. sepolia.base.org) cap eth_getLogs at 2000 blocks, so scan
+  // in windows from the configured deploy block rather than one range from 0.
+  const CHUNK = 1_800n;
+  const latest = await client.getBlockNumber();
+  const ids: bigint[] = [];
+  for (let from = appConfig.startBlock; from <= latest; from += CHUNK) {
+    const to = from + CHUNK - 1n > latest ? latest : from + CHUNK - 1n;
+    const logs = await client.getContractEvents({
+      address: escrow,
+      abi: aegisEscrowAbi,
+      eventName: "EscrowCreated",
+      fromBlock: from,
+      toBlock: to,
+    });
+    for (const log of logs) if (log.args.escrowId !== undefined) ids.push(log.args.escrowId);
+  }
+  return ids.sort((a, b) => (a < b ? -1 : 1));
 }
 
 /** ETH escrows use 18 decimals; ERC-20 escrows are assumed USDC-style 6. */

@@ -13,6 +13,8 @@ export const appConfig = {
   rpcUrl: process.env.NEXT_PUBLIC_RPC_URL ?? "http://127.0.0.1:8545",
   escrowAddress: (process.env.NEXT_PUBLIC_ESCROW_ADDRESS ??
     "0x0000000000000000000000000000000000000000") as Address,
+  /** Block the escrow was deployed at — event scans start here (0 for local anvil). */
+  startBlock: BigInt(process.env.NEXT_PUBLIC_START_BLOCK ?? "0"),
   /** Pimlico bundler + verifying paymaster; unset = local dev without sponsorship. */
   pimlicoApiKey: process.env.NEXT_PUBLIC_PIMLICO_API_KEY,
 } as const;

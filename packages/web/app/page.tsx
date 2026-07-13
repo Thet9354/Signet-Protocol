@@ -35,7 +35,7 @@ export default function Home() {
       {/* ── hero ── */}
       <section className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
         <Reveal className="space-y-6">
-          <SectionLabel>Aegis Protocol</SectionLabel>
+          <SectionLabel>Signet Protocol</SectionLabel>
           <h1 className="t-display max-w-xl text-balance">
             Milestone escrow, sealed by an autonomous AI agent.
           </h1>

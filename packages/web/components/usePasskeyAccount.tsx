@@ -41,7 +41,7 @@ export function usePasskeyAccount(): PasskeyAccountState {
     setBusy(true);
     setError(null);
     try {
-      await registerPasskey("Aegis contributor");
+      await registerPasskey("Signet contributor");
       await resolve();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

@@ -19,7 +19,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aegis Protocol — AI-verified milestone escrow",
+  title: "Signet Protocol — AI-verified milestone escrow",
   description:
     "Milestone escrow released by a 2-of-3 seal among the funder, the contributor's smart account, and an AI oracle. Live on Base Sepolia.",
 };
@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/" className="group flex items-center gap-2.5">
                 <Seal size={26} className="transition-transform duration-300 group-hover:rotate-[120deg]" />
                 <span className="flex items-baseline gap-1.5">
-                  <span className="font-display text-[1.05rem] font-semibold tracking-tight">Aegis</span>
+                  <span className="font-display text-[1.05rem] font-semibold tracking-tight">Signet</span>
                   <span className="t-label">Protocol</span>
                 </span>
               </Link>
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-sm text-ink3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-2.5">
                 <Seal size={18} />
-                <span>Aegis Protocol · 2-of-3 milestone escrow</span>
+                <span>Signet Protocol · 2-of-3 milestone escrow</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="badge" style={{ color: "var(--color-moss)", borderColor: "color-mix(in oklab, var(--color-moss) 35%, transparent)" }}>
